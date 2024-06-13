@@ -29,6 +29,8 @@
 #include<System.h>
 #include "ImuTypes.h"
 
+#include "common.h"
+
 using namespace std;
 
 void LoadImages(const string &strImagePath, const string &strPathTimes,
@@ -39,6 +41,10 @@ void LoadIMU(const string &strImuPath, vector<double> &vTimeStamps, vector<cv::P
 double ttrack_tot = 0;
 int main(int argc, char *argv[])
 {
+    setbuf(stdout,nullptr);
+    gDebug() << "gxt::Sleep(10);...";
+    gxt::Sleep(10);
+    gDebug() << "Sleep complete; Begin Run";
 
     if(argc < 5)
     {
@@ -169,12 +175,13 @@ int main(int argc, char *argv[])
             }
 
             // Load imu measurements from previous frame
+            // 清空上一帧的IMU数据
             vImuMeas.clear();
 
             if(ni>0)
             {
                 // cout << "t_cam " << tframe << endl;
-
+                // gxt: 添加这一帧的IMU数据(一般10个IMU/帧图像)
                 while(vTimestampsImu[seq][first_imu[seq]]<=vTimestampsCam[seq][ni])
                 {
                     vImuMeas.push_back(ORB_SLAM3::IMU::Point(vAcc[seq][first_imu[seq]].x,vAcc[seq][first_imu[seq]].y,vAcc[seq][first_imu[seq]].z,
@@ -192,7 +199,9 @@ int main(int argc, char *argv[])
 
             // Pass the image to the SLAM system
             // cout << "tframe = " << tframe << endl;
-            SLAM.TrackMonocular(im,tframe,vImuMeas); // TODO change to monocular_inertial
+            auto gxt_tcw=SLAM.TrackMonocular(im,tframe,vImuMeas); // TODO change to monocular_inertial
+            gDebugWarn() << VAR(tframe,vImuMeas.size());
+            gDebugWarn(gxt_tcw.matrix());
 
     #ifdef COMPILEDWITHC11
             std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();

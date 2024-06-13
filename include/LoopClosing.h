@@ -223,7 +223,10 @@ protected:
     bool mbFixScale;
 
 
-    bool mnFullBAIdx;
+    // gxt_kt bug:
+    // https://github.com/UZ-SLAMLab/ORB_SLAM3/issues/550
+    // bool mnFullBAIdx;
+    int mnFullBAIdx;
 
 
 
